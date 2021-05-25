@@ -1,0 +1,59 @@
+--CONSULTA 1 ++++++++++++++++++++++++++++++++
+select A.nome as Nome1, B.nome as Depende
+from 
+
+(Select cliente.nome as nome, cliente_conta.id_conta as id, cliente_conta.dependente as dependente from cliente
+JOIN cliente_conta 
+ON Cliente.id = cliente_conta.id_cliente) as A
+
+JOIN
+
+(Select cliente.nome as nome, cliente_conta.id_conta as id, cliente_conta.dependente as dependente from cliente
+JOIN cliente_conta 
+ON Cliente.id = cliente_conta.id_conta) as B
+
+on A.id = B.id
+where A.dependente=1 and B.dependente=1
+group by Nome1;
+
+
+
+--Consulta 2 +++++++++++++++++++
+
+SELECT cliente.nome as Cliente, conta.numero as NroCuenta, count(id_cliente_conta)as NroTransacaosMAIS
+FROM (transacao
+JOIN cliente_conta
+On cliente_conta.id_cliente = transacao.id_cliente_conta
+join cliente ON cliente.id = cliente_conta.id_cliente
+join conta on cliente_conta.id_conta = conta.id)
+group by transacao.id_cliente_conta
+order by NroTransacaosMAIS desc
+limit 5;
+
+SELECT cliente.nome as Cliente, conta.numero as NroCuenta, count(id_cliente_conta)as NroTransacaosMENOS
+FROM (transacao
+JOIN cliente_conta
+On cliente_conta.id_cliente = transacao.id_cliente_conta
+join cliente ON cliente.id = cliente_conta.id_cliente
+join conta on cliente_conta.id_conta = conta.id)
+group by transacao.id_cliente_conta
+order by NroTransacaosMENOS
+limit 5;
+
+
+
+--Consulta 3+++++++++++++++++
+
+SELECT cliente.nome as Cliente, conta.numero as NroCuenta,
+SUM(CASE 	WHEN id_tipo_transacao = 1 THEN valor 
+    		WHEN id_tipo_transacao = 2 THEN (-1)*valor 
+    		WHEN id_tipo_transacao = 3 THEN (-1)*valor  
+    		WHEN id_tipo_transacao = 4 THEN valor ELSE 0 END) as Total
+
+from (transacao
+JOIN cliente_conta
+On cliente_conta.id_cliente = transacao.id_cliente_conta
+join cliente ON cliente.id = cliente_conta.id_cliente
+join conta on cliente_conta.id_conta = conta.id)
+
+Group by  id_cliente_conta;
